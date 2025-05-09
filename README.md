@@ -1,4 +1,4 @@
-# ACCPS Project 2 — Identification of DFAs by Consistent Reduction
+# Identification of DFAs by Consistent Reduction
 
 This project implements a complete pipeline to reconstruct a DFA from a set of
 positive (S⁺) and negative (S⁻) string samples. The core algorithm is based on
