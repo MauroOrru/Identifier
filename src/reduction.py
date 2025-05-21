@@ -10,18 +10,8 @@ from typing import Dict, List, Optional, Set, Tuple, Union
 
 from tree_builder import PrefixTree, PrefixTreeNode
 import time
+from dfa_examples import DFA
 
-# ────────────────────────────────────────────────────────────────────────
-@dataclass
-class DFA:
-    Q: Set[str]
-    Sigma: Set[str]
-    delta: Dict[Tuple[str, str], str]
-    q0: str
-    F: Set[str]
-
-    def next(self, q: str, sym: str) -> Optional[str]:
-        return self.delta.get((q, sym))
 
 # ────────────────────────────────────────────────────────────────────────
 def build_initial_cover(tree: PrefixTree) -> List[Set[PrefixTreeNode]]:

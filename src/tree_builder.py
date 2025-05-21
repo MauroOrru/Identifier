@@ -8,6 +8,7 @@ from __future__ import annotations   # ok anche con 3.9
 from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Dict, Iterable, List, Optional, Set, Literal
+from graphviz import Digraph
 
 # ────────────────────────────────────────────────────────────────────────
 Label = Literal["A", "G", "N", "Y", "Z"]
@@ -58,12 +59,12 @@ class PrefixTree:
             yield n
             stack.extend(n.edges.values())
 
-    # esportazione Graphviz --------------------------------------------
     def export_dot(self, file: str | Path) -> None:
         lines: List[str] = ["digraph PrefixTree {", "  rankdir=LR;"]
         stack = [self.root]
         while stack:
             n = stack.pop()
+
             color = {
                 "A": "darkgreen",
                 "G": "orange",
@@ -71,17 +72,23 @@ class PrefixTree:
                 "Y": "blue",
                 "Z": "gray",
             }.get(n.label, "black")
+
             shape = "doublecircle" if n.label == "A" else "circle"
+
             lbl = n.word if n.word else "ε"
+            full_label = f"{lbl}\\n[{n.label}]"
+
             lines.append(
-                f'  "{n.word}" [label="{lbl}", color="{color}", shape={shape}];'
+                f'  "{n.word}" [label="{full_label}", color="{color}", shape={shape}];'
             )
+
             for sym, child in n.edges.items():
                 lines.append(f'  "{n.word}" -> "{child.word}" [label="{sym}"];')
                 stack.append(child)
+
         lines.append("}")
         Path(file).write_text("\n".join(lines))
-        print(f"[tree_builder] salvato .dot in {file}")
+        print(f"[tree_builder] salvato .dot in {file}")
 
 
 # ────────────────────────────────────────────────────────────────────────
