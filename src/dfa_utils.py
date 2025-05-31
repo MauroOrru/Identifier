@@ -5,7 +5,9 @@ import subprocess
 from pathlib import Path
 from typing import Dict, Set, Tuple, Hashable, Optional
 import random
+from collections import deque
 
+# -----------------------------------------------------------------------------
 State = Hashable
 Symbol = Hashable
 Event = Hashable
@@ -38,19 +40,6 @@ def all_words(sigma: set[str], max_len: int) -> list[str]:
 
     return words
 
-def dot_to_png(dot_path: str | Path, png_path: str | Path) -> None:
-    """
-    Converte un file .dot in .png usando Graphviz (comando 'dot').
-    """
-    dot_path = str(dot_path)
-    png_path = str(png_path)
-
-    try:
-        subprocess.run(["dot", "-Tpng", dot_path, "-o", png_path], check=True)
-        print(f"[✓] PNG generato: {png_path}")
-    except subprocess.CalledProcessError:
-        print("[✗] Errore nella conversione con Graphviz. Assicurati che 'dot' sia installato.")
-
 def random_dfa(
     n_states: int,
     alphabet: Set[Symbol],
@@ -66,13 +55,13 @@ def random_dfa(
     state_set = set(states)
     delta: Dict[Tuple[State, Symbol], State] = {}
 
-    # 1. Costruisci grafo raggiungibile da stato iniziale
+    # 1. Build a reachable graph from the initial state
     initial = rng.choice(states)
     reachable = {initial}
     remaining = set(states) - {initial}
     queue = deque([initial])
 
-    # Per ogni stato, collega almeno uno nuovo (per garantire raggiungibilità)
+    # For each state, connect at least one new one (to ensure reachability)
     while remaining:
         current = queue.popleft()
         if not remaining:
@@ -84,11 +73,11 @@ def random_dfa(
         remaining.remove(target)
         queue.append(target)
 
-    # 2. Calcola il numero totale di transizioni da inserire
+    # 2. Calculate the total number of transitions to insert
     max_transitions = len(states) * len(alphabet)
     target_transitions = int(max_transitions * transition_ratio)
 
-    # 3. Aggiungi transizioni random fino a raggiungere il numero desiderato
+    # 3. Add random transitions until you reach the desired number
     all_possible = [(q, a) for q in states for a in alphabet if (q, a) not in delta]
     rng.shuffle(all_possible)
     for (q, a) in all_possible:
@@ -96,13 +85,11 @@ def random_dfa(
             break
         delta[(q, a)] = rng.choice(states)
 
-    # 4. Stati accettanti casuali
+    # 4. Random accepting states
     accepting = {q for q in states if rng.random() < acceptance_ratio}
 
     return DFA(set(states), alphabet, delta, initial, accepting)
 
-
-from collections import deque
 # -----------------------------------------------------------------------------
 # Concurrent composition -------------------------------------------------------
 # -----------------------------------------------------------------------------
